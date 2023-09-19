@@ -1,12 +1,10 @@
-<?php
-
-
-namespace Vdomah\JWTAuth\Controllers;
-
+<?php namespace Vdomah\JWTAuth\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Vdomah\JWTAuth\Classes\OctoberJWTAuth;
+use App;
+use Config;
 
 class BaseAPIController extends Controller
 {
@@ -29,6 +27,29 @@ class BaseAPIController extends Controller
 
     public function __construct(OctoberJWTAuth $jwtAuth, Request $request)
     {
+        $errorHandler = function (\Exception $e) {
+            header("Access-Control-Allow-Origin: *");
+
+            $error = [
+                'error' => [
+                    'code' => 'INTERNAL_ERROR',
+                    'http_code' => 500,
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                ],
+            ];
+
+            if (Config::get('app.debug')) {
+                $error['trace'] = explode("\n", $e->getTraceAsString());
+            }
+
+            return $error;
+        };
+
+        App::error($errorHandler);
+        App::fatal($errorHandler);
+
         $this->request = $request;
         $this->jwtAuth = $jwtAuth;
 

@@ -83,7 +83,7 @@ class AuthController extends BaseAPIController
             App::abort(404, 'Page not found');
         }
 
-        $token = Request::get('token');
+        $token = $request->get('token');
 
         try {
             // attempt to refresh the JWT
