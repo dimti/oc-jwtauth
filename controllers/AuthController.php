@@ -1,7 +1,5 @@
 <?php
-
-
-namespace Vdomah\JWTAuth\Controllers;
+ namespace Vdomah\JWTAuth\Controllers;
 
 use App;
 use Illuminate\Http\Request;
@@ -75,28 +73,6 @@ class AuthController extends BaseAPIController
 
         // if no errors we can return a message to indicate that the token was invalidated
         return response()->json('token_invalidated');
-    }
-
-    public function refresh(Request $request)
-    {
-        if (Settings::get('is_refresh_disabled')) {
-            App::abort(404, 'Page not found');
-        }
-
-        $token = $request->get('token');
-
-        try {
-            // attempt to refresh the JWT
-            if (!$token = $this->jwtAuth->refresh($token)) {
-                return response()->json(['error' => 'could_not_refresh_token'], 401);
-            }
-        } catch (Exception $e) {
-            // something went wrong
-            return response()->json(['error' => 'could_not_refresh_token'], 500);
-        }
-
-        // if no errors are encountered we can return a new JWT
-        return response()->json(compact('token'));
     }
 
     public function login(Request $request)

@@ -16,10 +16,12 @@ class BaseAPIController extends Controller
      * @var
      */
     protected $payload;
+
     /**
      * @var OctoberJWTAuth
      */
     protected $jwtAuth;
+
     /**
      * @var
      */
