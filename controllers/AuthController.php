@@ -111,10 +111,13 @@ class AuthController extends BaseAPIController
 
     protected function generateTokenResponse($token)
     {
+        $this->jwtAuth->setToken($token);
+
         return [
             'access_token' => $token,
             'token_type'   => 'bearer',
             'expires_in'   => $this->jwtAuth->factory()->getTTL() * 60,
+            'exp' => $this->jwtAuth->getPayload()->getClaims()->get('exp')->getValue(),
         ];
     }
 }

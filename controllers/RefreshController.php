@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Tymon\JWTAuth\Exceptions\TokenBlacklistedException;
 use Vdomah\JWTAuth\Classes\OctoberJWTAuth;
 use Vdomah\JWTAuth\Models\Settings;
 
@@ -31,12 +32,19 @@ class RefreshController extends Controller
             if (!$token = $this->jwtAuth->refresh()) {
                 return response()->json(['error' => 'could_not_refresh_token'], 401);
             }
-        } catch (Exception $e) {
+        } catch (TokenBlacklistedException $e) {
             // something went wrong
-            return response()->json(['error' => 'could_not_refresh_token'], 500);
+            return response()->json(['error' => $e->getMessage()], 401);
+        } catch (\Exception $e) {
+            // something went wrong
+            return response()->json(['error' => $e->getMessage()], 500);
         }
 
+        $this->jwtAuth->setToken($token);
+
+        $exp = $this->jwtAuth->getPayload()->getClaims()->get('exp')->getValue();
+
         // if no errors are encountered we can return a new JWT
-        return response()->json(compact('token'));
+        return response()->json(compact('token', 'exp'));
     }
 }
