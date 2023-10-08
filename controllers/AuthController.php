@@ -83,19 +83,25 @@ class AuthController extends BaseAPIController
 
         $arFields = Settings::get('login_fields');
         if (!is_array($arFields) || empty($arFields)) {
-            $arFields = ['login', 'password', 'password_confirmation'];
+            $arFields = ['login', 'password', 'password_confirmation', 'token'];
         }
 
         $credentials = Input::only($arFields);
 
-        try {
-            // verify the credentials and create a token for the user
-            if (!$token = $this->jwtAuth->attempt($credentials)) {
-                return response()->json(['error' => 'invalid_credentials'], 401);
+        if ($token = array_get($credentials, 'token')) {
+            $this->setToken($token);
+
+            $this->jwtAuth->authenticate();
+        } else {
+            try {
+                // verify the credentials and create a token for the user
+                if (!$token = $this->jwtAuth->attempt($credentials)) {
+                    return response()->json(['error' => 'invalid_credentials'], 401);
+                }
+            } catch (JWTException $e) {
+                // something went wrong
+                return response()->json(['error' => 'could_not_create_token'], 500);
             }
-        } catch (JWTException $e) {
-            // something went wrong
-            return response()->json(['error' => 'could_not_create_token'], 500);
         }
 
         // if no errors are encountered we can return a JWT
