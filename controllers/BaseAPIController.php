@@ -1,12 +1,14 @@
 <?php namespace Vdomah\JWTAuth\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
+use League\Fractal\Manager;
+use Octobro\API\Classes\ApiController;
+use Octobro\API\Classes\InputBag;
 use Vdomah\JWTAuth\Classes\OctoberJWTAuth;
 use App;
 use Config;
 
-class BaseAPIController extends Controller
+class BaseAPIController extends ApiController
 {
     /**
      * @var Request
@@ -29,28 +31,7 @@ class BaseAPIController extends Controller
 
     public function __construct(OctoberJWTAuth $jwtAuth, Request $request)
     {
-        $errorHandler = function (\Exception $e) {
-            header("Access-Control-Allow-Origin: *");
-
-            $error = [
-                'error' => [
-                    'code' => 'INTERNAL_ERROR',
-                    'http_code' => 500,
-                    'message' => $e->getMessage(),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
-                ],
-            ];
-
-            if (Config::get('app.debug')) {
-                $error['trace'] = explode("\n", $e->getTraceAsString());
-            }
-
-            return $error;
-        };
-
-        App::error($errorHandler);
-        App::fatal($errorHandler);
+        parent::__construct(app(Manager::class), app(InputBag::class));
 
         $this->request = $request;
         $this->jwtAuth = $jwtAuth;

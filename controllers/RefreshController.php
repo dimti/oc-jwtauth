@@ -2,11 +2,15 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use League\Fractal\Manager;
+use Octobro\API\Classes\ApiController;
+use Octobro\API\Classes\InputBag;
 use Tymon\JWTAuth\Exceptions\TokenBlacklistedException;
 use Vdomah\JWTAuth\Classes\OctoberJWTAuth;
 use Vdomah\JWTAuth\Models\Settings;
+use App;
 
-class RefreshController extends Controller
+class RefreshController extends ApiController
 {
     /**
      * @var OctoberJWTAuth
@@ -15,13 +19,15 @@ class RefreshController extends Controller
 
     public function __construct(OctoberJWTAuth $jwtAuth)
     {
+        parent::__construct(app(Manager::class), app(InputBag::class));
+
         $this->jwtAuth = $jwtAuth;
     }
 
     public function refresh(Request $request)
     {
         if (Settings::get('is_refresh_disabled')) {
-            App::abort(404, 'Page not found');
+            return $this->setStatusCode(404)->respondWithError('Page not found', 1);
         }
 
         $token = $request->get('token');
