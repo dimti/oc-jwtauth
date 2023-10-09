@@ -91,6 +91,8 @@ class AuthController extends BaseAPIController
         if ($token = array_get($credentials, 'token')) {
             $this->setToken($token);
 
+            $this->getAuth()->manager()->decode($this->getAuth()->getToken());
+
             $this->jwtAuth->authenticate();
         } else {
             try {
