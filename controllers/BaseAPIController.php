@@ -5,10 +5,8 @@ use League\Fractal\Manager;
 use Octobro\API\Classes\ApiController;
 use Octobro\API\Classes\InputBag;
 use Vdomah\JWTAuth\Classes\OctoberJWTAuth;
-use App;
-use Config;
 
-class BaseAPIController extends ApiController
+abstract class BaseAPIController extends ApiController
 {
     /**
      * @var Request

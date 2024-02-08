@@ -1,8 +1,7 @@
-<?php
-
-namespace Vdomah\JWTAuth\Resources;
+<?php namespace Vdomah\JWTAuth\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Event;
 
 class UserResource extends JsonResource
 {
@@ -34,7 +33,7 @@ class UserResource extends JsonResource
     {
         $resourceData = $this->resource;
 
-        \Illuminate\Support\Facades\Event::fire('vdomah.jwtauth.extendUserResource', [&$resourceData, $this]);
+        Event::fire('vdomah.jwtauth.extendUserResource', [&$resourceData, $this]);
 
         return $resourceData;
     }

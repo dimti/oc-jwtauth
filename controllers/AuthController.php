@@ -1,8 +1,8 @@
-<?php
- namespace Vdomah\JWTAuth\Controllers;
+<?php namespace Vdomah\JWTAuth\Controllers;
 
 use App;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Response;
 use October\Rain\Support\Facades\Input;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -114,6 +114,9 @@ class AuthController extends BaseAPIController
     protected function respondWithDataAndToken(UserResource $resource, $token)
     {
         $resource->with = $this->generateTokenResponse($token);
+
+        Event::fire('vdomah.jwtauth.extendLoginResponseResource', [&$resource, $this]);
+
         return $resource;
     }
 

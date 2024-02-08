@@ -1,28 +1,19 @@
 <?php namespace Vdomah\JWTAuth\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller;
-use League\Fractal\Manager;
-use Octobro\API\Classes\ApiController;
-use Octobro\API\Classes\InputBag;
+use Illuminate\Support\Facades\Event;
 use Tymon\JWTAuth\Exceptions\TokenBlacklistedException;
 use Vdomah\JWTAuth\Classes\OctoberJWTAuth;
 use Vdomah\JWTAuth\Models\Settings;
 use App;
+use Vdomah\JWTAuth\Resources\UserResource;
 
-class RefreshController extends ApiController
+class RefreshController extends BaseAPIController
 {
     /**
      * @var OctoberJWTAuth
      */
     protected $jwtAuth;
-
-    public function __construct(OctoberJWTAuth $jwtAuth)
-    {
-        parent::__construct(app(Manager::class), app(InputBag::class));
-
-        $this->jwtAuth = $jwtAuth;
-    }
 
     public function refresh(Request $request)
     {
@@ -50,7 +41,13 @@ class RefreshController extends ApiController
 
         $exp = $this->jwtAuth->getPayload()->getClaims()->get('exp')->getValue();
 
-        // if no errors are encountered we can return a new JWT
-        return response()->json(compact('token', 'exp'));
+        $responseData = [
+            'access_token' => $token,
+            'exp' => $exp,
+        ];
+
+        Event::fire('vdomah.jwtauth.extendRefreshResponse', [&$responseData, $this]);
+
+        return response()->json($responseData);
     }
 }
